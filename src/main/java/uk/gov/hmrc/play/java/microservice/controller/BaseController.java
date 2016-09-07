@@ -53,7 +53,7 @@ public class BaseController extends Controller {
                 F.Tuple<Integer, Object> r = f.apply(obj);
                 return pure(Results.status(r._1, toJson(r._2)));
             } catch (ConstraintViolationException ex) {
-                return pure((badRequest(handleValidationException(ex))));
+                return pure((badRequest(createJsonResponse(ex))));
             } catch (RuntimeException e) {
                 if (e.getCause() instanceof JsonProcessingException) {
                     return pure(badRequest(handleProcessingException((JsonProcessingException) e.getCause())));
@@ -68,7 +68,7 @@ public class BaseController extends Controller {
         return toJson(jpe);
     }
 
-    private JsonNode handleValidationException(ConstraintViolationException cex) {
+    private JsonNode createJsonResponse(ConstraintViolationException cex) {
         Map<String, List<String>> validationMessages = Optional
                 .fromNullable(cex.getConstraintViolations())
                 .or(new HashSet<>())
