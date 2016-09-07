@@ -18,12 +18,12 @@ package uk.gov.hmrc.play.java.microservice.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Optional;
 import play.api.mvc.Request;
 import play.libs.F;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.Results;
 import uk.gov.hmrc.play.http.HeaderCarrier;
 
 import javax.validation.ConstraintViolationException;
@@ -42,36 +42,31 @@ public class BaseController extends Controller {
         return HeaderCarrier.fromHeadersAndSession(request.headers(), Option(request.session()));
     }
 
-
     protected <T> F.Promise<Result> withJsonBody(Class<T> klass, ToPromiseResult<T> f) {
-        // Grab the json body
         JsonNode jsonNode = request().body().asJson();
 
         if (jsonNode == null) {
-            return pure(badRequest("could not parse body due to..."));
+            return pure(badRequest("could not parse body to JSON"));
         } else {
             try {
-                // TODO - Would rather do this with the Spring/Hibernate validation
                 T obj = play.libs.Json.fromJson(jsonNode, klass);
-                // Apply the function
-                return f.apply(obj);
-
+                F.Tuple<Integer, Object> r = f.apply(obj);
+                return pure(Results.status(r._1, toJson(r._2)));
             } catch (ConstraintViolationException ex) {
                 return pure((badRequest(handleValidationException(ex))));
             } catch (RuntimeException e) {
-                // TODO - Would rather do this with the Spring/Hibernate validation
                 if (e.getCause() instanceof JsonProcessingException) {
-                    JsonProcessingException jpe = (JsonProcessingException) e.getCause();
-                    // TODO: Want to generate a proper JsError object here
-                    throw e;
+                    return pure(badRequest(handleProcessingException((JsonProcessingException) e.getCause())));
                 } else {
-                    // TODO: Throw the RuntimeException
                     throw e;
                 }
             }
         }
     }
 
+    private JsonNode handleProcessingException(JsonProcessingException jpe) {
+        return toJson(jpe);
+    }
 
     private JsonNode handleValidationException(ConstraintViolationException cex) {
         Map<String, List<String>> validationMessages = Optional
@@ -84,18 +79,25 @@ public class BaseController extends Controller {
         return toJson(validationMessages);
     }
 
+    protected F.Tuple<Integer, Object> response(Integer status, Object value) {
+        return new F.Tuple<>(status, value);
+    }
 
-    // EXAMPLE usage
+    protected F.Tuple<Integer, Object> response(Integer status) {
+        return new F.Tuple<>(status, null);
+    }
+
 /*
     public F.Promise<Result> doSomething() {
-        return withJsonBody(String.class, obj -> {
-            return pure(ok());
+        withJsonBody(String.class, object -> {
+            // Do something with object
+            return response(OK, "Hello World!");
         });
     }
 */
 
     @FunctionalInterface
     public interface ToPromiseResult<T> {
-        F.Promise<Result> apply(T type);
+        F.Tuple<Integer, Object> apply(T type);
     }
 }
