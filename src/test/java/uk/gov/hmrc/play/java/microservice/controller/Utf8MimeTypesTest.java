@@ -16,11 +16,8 @@
 
 package uk.gov.hmrc.play.java.microservice.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import org.junit.Before;
 import org.junit.Test;
-import play.api.mvc.Codec;
 import play.api.mvc.Result;
 import play.core.j.JavaParsers;
 import play.libs.F;
