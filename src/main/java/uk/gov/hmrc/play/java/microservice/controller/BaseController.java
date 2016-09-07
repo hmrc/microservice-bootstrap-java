@@ -18,7 +18,6 @@ package uk.gov.hmrc.play.java.microservice.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Optional;
 import play.api.mvc.Request;
 import play.libs.F;
@@ -57,7 +56,7 @@ public class BaseController extends Controller {
                 return f.apply(obj);
 
             } catch (ConstraintViolationException ex) {
-                return pure((badRequest(handleValidationException(ex))));
+                return pure((badRequest(createJsonResponse(ex))));
             } catch (RuntimeException e) {
                 // TODO - Would rather do this with the Spring/Hibernate validation
                 if (e.getCause() instanceof JsonProcessingException) {
@@ -73,7 +72,7 @@ public class BaseController extends Controller {
     }
 
 
-    private JsonNode handleValidationException(ConstraintViolationException cex) {
+    private JsonNode createJsonResponse(ConstraintViolationException cex) {
         Map<String, List<String>> validationMessages = Optional
                 .fromNullable(cex.getConstraintViolations())
                 .or(new HashSet<>())
