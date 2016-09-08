@@ -1,0 +1,19 @@
+@(pageTitle: String, heading: String, message: String)
+
+@contentHeader = {
+    <h1>@heading</h1>
+}
+
+@mainContent = {
+    <p>@message</p>
+}
+
+<html>
+    <head>
+        <title>@pageTitle</title>
+    </head>
+    <body>
+        @contentHeader
+        @mainContent
+    </body>
+</html>

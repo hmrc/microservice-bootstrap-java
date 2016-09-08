@@ -14,13 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.play.java.microservice.bootstrap;
+package uk.gov.hmrc.play.java.bootstrap;
 
 import org.hamcrest.core.Is;
 import org.junit.Test;
-import uk.gov.hmrc.play.auth.controllers.AuthParamsControllerConfig;
-import uk.gov.hmrc.play.auth.microservice.connectors.AuthConnector;
 import uk.gov.hmrc.play.java.ScalaFixtures;
+import uk.gov.hmrc.play.java.connectors.AuthConnector;
 import uk.gov.hmrc.play.java.connectors.AuditConnector;
 
 import static org.junit.Assert.assertThat;
@@ -33,17 +32,7 @@ public class MicroserviceFiltersTest extends ScalaFixtures {
         DefaultMicroserviceGlobal testGlobal = new DefaultMicroserviceGlobal() {
             @Override
             protected MicroserviceAuthFilter microserviceAuthFilter() {
-                return new MicroserviceAuthFilter() {
-                    @Override
-                    public AuthConnector authConnector() {
-                        return mock(AuthConnector.class);
-                    }
-
-                    @Override
-                    public AuthParamsControllerConfig authParamsConfig() {
-                        return mock(AuthParamsControllerConfig.class);
-                    }
-                };
+                return () -> mock(AuthConnector.class);
             }
 
             @Override

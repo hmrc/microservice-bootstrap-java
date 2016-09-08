@@ -17,9 +17,12 @@
 package uk.gov.hmrc.play.java.config;
 
 import play.Configuration;
+import uk.gov.hmrc.play.audit.http.config.LoadAuditingConfig;
 import uk.gov.hmrc.play.config.RunMode$;
 import uk.gov.hmrc.play.java.connectors.AuditConnector;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -31,20 +34,36 @@ public class ServicesConfig {
 
     private static AuditConnector auditConnector;
 
-    protected String loadConfig(String key) throws Exception {
+    public static String loadConfig(String key) throws Exception {
         return Optional.ofNullable(Configuration.root().getString(key)).orElseThrow(() -> new Exception(String.format("Missing configuration key: %s", key)));
     }
 
-    public String defaultProtocol() {
+    public static String defaultProtocol() {
         return getConfString("protocol", "http");
     }
 
-    public Configuration config(String serviceName) {
+    public static Configuration config(String serviceName) {
         return Optional.ofNullable(getConfConf(serviceName, null))
                 .orElseThrow(() -> new IllegalArgumentException(String.format("Configuration for service %s not found", serviceName)));
     }
 
-    public String baseUrl(String serviceName) {
+    public static URL url(String serviceName, String path) {
+        try {
+            return new URL(String.format("%s/%s", baseUrl(serviceName), path));
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static URL url(String serviceName) {
+        try {
+            return new URL(baseUrl(serviceName));
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static String baseUrl(String serviceName) {
         String protocol = getConfString(String.format("%s.protocol", serviceName), defaultProtocol());
         String host = Optional.ofNullable(getConfString(String.format("%s.host", serviceName), null)).orElseThrow(() -> new RuntimeException(String.format("Could not find config %s.host", serviceName)));
         int port = Optional.ofNullable(getConfInteger(String.format("%s.port", serviceName), null)).orElseThrow(() -> new RuntimeException(String.format("Could not find config %s.port", serviceName)));
@@ -61,7 +80,7 @@ public class ServicesConfig {
 
     public static AuditConnector auditConnector() {
         if(auditConnector == null) {
-            auditConnector = new AuditConnector();
+            auditConnector = () -> LoadAuditingConfig.apply("auditing");
         }
 
         return auditConnector;

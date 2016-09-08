@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.play.java.microservice.controller;
+package uk.gov.hmrc.play.java.controller;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +24,7 @@ import org.junit.Test;
 import play.core.j.JavaParsers;
 import play.mvc.Http;
 import uk.gov.hmrc.play.java.ScalaFixtures;
+import uk.gov.hmrc.play.java.controller.BaseController;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;

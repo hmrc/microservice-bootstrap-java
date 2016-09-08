@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.play.java.microservice.controller;
+package uk.gov.hmrc.play.java.controller;
 
 import com.fasterxml.jackson.databind.node.TextNode;
 import org.junit.Test;
@@ -24,6 +24,7 @@ import play.libs.F;
 import play.mvc.Http;
 import play.mvc.Results;
 import uk.gov.hmrc.play.java.ScalaFixtures;
+import uk.gov.hmrc.play.java.controller.BaseController;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;

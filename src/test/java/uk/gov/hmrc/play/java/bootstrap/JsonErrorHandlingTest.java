@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.play.java.microservice.bootstrap;
+package uk.gov.hmrc.play.java.bootstrap;
 
 
 import org.junit.Before;
@@ -27,6 +27,10 @@ import uk.gov.hmrc.play.http.BadRequestException;
 import uk.gov.hmrc.play.http.NotFoundException;
 import uk.gov.hmrc.play.http.UnauthorizedException;
 import uk.gov.hmrc.play.java.ScalaFixtures;
+import uk.gov.hmrc.play.java.bootstrap.DefaultMicroserviceGlobal;
+import uk.gov.hmrc.play.java.bootstrap.ErrorAuditing;
+import uk.gov.hmrc.play.java.bootstrap.MicroserviceAuditFilter;
+import uk.gov.hmrc.play.java.bootstrap.MicroserviceAuthFilter;
 import uk.gov.hmrc.play.java.connectors.AuditConnector;
 
 import static org.hamcrest.MatcherAssert.assertThat;

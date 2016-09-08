@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.play.java.microservice.bootstrap;
+package uk.gov.hmrc.play.java.bootstrap;
 
 
 import akka.dispatch.Futures;
@@ -30,6 +30,10 @@ import uk.gov.hmrc.play.audit.http.connector.AuditResult;
 import uk.gov.hmrc.play.audit.model.AuditEvent;
 import uk.gov.hmrc.play.http.NotFoundException;
 import uk.gov.hmrc.play.java.ScalaFixtures;
+import uk.gov.hmrc.play.java.bootstrap.DefaultMicroserviceGlobal;
+import uk.gov.hmrc.play.java.bootstrap.ErrorAuditing;
+import uk.gov.hmrc.play.java.bootstrap.MicroserviceAuditFilter;
+import uk.gov.hmrc.play.java.bootstrap.MicroserviceAuthFilter;
 
 import java.util.ArrayList;
 import java.util.List;
