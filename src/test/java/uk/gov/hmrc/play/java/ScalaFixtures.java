@@ -34,6 +34,9 @@ import play.test.WithApplication;
 import scala.Function1;
 import scala.compat.java8.JFunction0;
 import scala.concurrent.Future;
+import uk.gov.hmrc.play.java.config.ServicesConfig;
+import uk.gov.hmrc.play.java.connectors.AuditConnector;
+import uk.gov.hmrc.play.java.connectors.AuthConnector;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,9 +53,13 @@ public abstract class ScalaFixtures extends WithApplication implements ScalaFutu
     protected Result okResult = Results$.MODULE$.Ok();
     protected play.api.mvc.Request header = mock(play.api.mvc.Request.class);
     protected Http.Request request = mock(Http.Request.class);
+    protected AuditConnector auditConnector = mock(AuditConnector.class);
+    protected AuthConnector authConnector = mock(AuthConnector.class);
 
     @Before
     public void initHttpContext() {
+        ServicesConfig.initConnectors(auditConnector, authConnector);
+
         Map<String, String> flashData = Collections.emptyMap();
         Map<String, Object> argData = Collections.emptyMap();
         Long id = 2L;

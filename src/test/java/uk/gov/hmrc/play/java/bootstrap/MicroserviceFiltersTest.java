@@ -19,8 +19,11 @@ package uk.gov.hmrc.play.java.bootstrap;
 import org.hamcrest.core.Is;
 import org.junit.Test;
 import uk.gov.hmrc.play.java.ScalaFixtures;
+import uk.gov.hmrc.play.java.config.ServicesConfig;
 import uk.gov.hmrc.play.java.connectors.AuthConnector;
 import uk.gov.hmrc.play.java.connectors.AuditConnector;
+import uk.gov.hmrc.play.java.filters.MicroserviceAuditFilter;
+import uk.gov.hmrc.play.java.filters.MicroserviceAuthFilter;
 
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
@@ -29,44 +32,15 @@ public class MicroserviceFiltersTest extends ScalaFixtures {
 
     @Test
     public void includeAuthFilterIfDefined() {
-        DefaultMicroserviceGlobal testGlobal = new DefaultMicroserviceGlobal() {
-            @Override
-            protected MicroserviceAuthFilter microserviceAuthFilter() {
-                return () -> mock(AuthConnector.class);
-            }
-
-            @Override
-            protected MicroserviceAuditFilter microserviceAuditFilter() {
-                return () -> mock(AuditConnector.class);
-            }
-
-            @Override
-            protected ErrorAuditing errorAuditing() {
-                return mock(ErrorAuditing.class);
-            }
-        };
+        DefaultMicroserviceGlobal testGlobal = new DefaultMicroserviceGlobal() {};
 
         assertThat(testGlobal.filters().length, Is.is(7));
     }
 
     @Test
     public void notIncludeAuthFilterIfNotDefined() {
-        DefaultMicroserviceGlobal testGlobal = new DefaultMicroserviceGlobal() {
-            @Override
-            protected MicroserviceAuthFilter microserviceAuthFilter() {
-                return null;
-            }
-
-            @Override
-            protected MicroserviceAuditFilter microserviceAuditFilter() {
-                return () -> mock(AuditConnector.class);
-            }
-
-            @Override
-            protected ErrorAuditing errorAuditing() {
-                return mock(ErrorAuditing.class);
-            }
-        };
+        ServicesConfig.initConnectors(null, null);
+        DefaultMicroserviceGlobal testGlobal = new DefaultMicroserviceGlobal() {};
 
         assertThat(testGlobal.filters().length, Is.is(6));
     }

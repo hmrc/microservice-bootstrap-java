@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.play.java.bootstrap;
+package uk.gov.hmrc.play.java.filters;
 
 import com.typesafe.config.Config;
 import net.ceedubs.ficus.readers.StringReader$;
@@ -37,17 +37,19 @@ import uk.gov.hmrc.play.auth.microservice.connectors.ConfidenceLevel;
 import uk.gov.hmrc.play.auth.microservice.connectors.ResourceToAuthorise;
 import uk.gov.hmrc.play.auth.microservice.filters.AuthorisationFilter;
 import uk.gov.hmrc.play.auth.microservice.filters.AuthorisationFilter$class;
+import uk.gov.hmrc.play.java.config.ServicesConfig;
 
 import static net.ceedubs.ficus.readers.AnyValReaders$.MODULE$;
 import static uk.gov.hmrc.play.java.config.ServicesConfig.getConfBool;
 import static uk.gov.hmrc.play.java.config.ServicesConfig.getConfConf;
 
-@FunctionalInterface
-public interface MicroserviceAuthFilter extends AuthorisationFilter {
-    AuthConnector authConnector();
+public class MicroserviceAuthFilter implements AuthorisationFilter {
+    public AuthConnector authConnector() {
+        return ServicesConfig.authConnector();
+    }
 
     @Override
-    default AuthParamsControllerConfig authParamsConfig() {
+    public AuthParamsControllerConfig authParamsConfig() {
         return new AuthParamsControllerConfig() {
             private ValueReader<ConfidenceLevel> confidenceLevelValueReader = MODULE$.intValueReader().map((JFunction1<Object, ConfidenceLevel>) v1 -> ConfidenceLevel.fromInt((Integer)v1));;
             private ValueReader<Regex> regexValueReader = StringReader$.MODULE$.stringValueReader().map((JFunction1<String, Regex>) v1 -> new Regex(v1, null));
@@ -93,27 +95,27 @@ public interface MicroserviceAuthFilter extends AuthorisationFilter {
     }
 
     @Override
-    default boolean controllerNeedsAuth(String controllerName) {
+    public boolean controllerNeedsAuth(String controllerName) {
         return getConfBool(String.format("controllers.%s.needsAuth", controllerName), true);
     }
 
     @Override
-    default EssentialAction apply(EssentialAction next) {
+    public EssentialAction apply(EssentialAction next) {
         return Filter$class.apply(this, next);
     }
 
     @Override
-    default Option<AuthConfig> authConfig(RequestHeader rh) {
+    public Option<AuthConfig> authConfig(RequestHeader rh) {
         return AuthorisationFilter$class.authConfig(this, rh);
     }
 
     @Override
-    default Future<Result> apply(Function1<RequestHeader, Future<Result>> next, RequestHeader rh) {
+    public Future<Result> apply(Function1<RequestHeader, Future<Result>> next, RequestHeader rh) {
         return AuthorisationFilter$class.apply(this, next, rh);
     }
 
     @Override
-    default Option<ResourceToAuthorise> extractResource(String pathString, String verb, AuthConfig authConfig) {
+    public Option<ResourceToAuthorise> extractResource(String pathString, String verb, AuthConfig authConfig) {
         return AuthorisationFilter$class.extractResource(this, pathString, verb, authConfig);
     }
 }

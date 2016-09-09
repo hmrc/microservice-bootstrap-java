@@ -19,6 +19,7 @@ package uk.gov.hmrc.play.java.config;
 import play.Configuration;
 import uk.gov.hmrc.play.audit.http.config.LoadAuditingConfig;
 import uk.gov.hmrc.play.config.RunMode$;
+import uk.gov.hmrc.play.java.connectors.AuthConnector;
 import uk.gov.hmrc.play.java.connectors.AuditConnector;
 
 import java.net.MalformedURLException;
@@ -32,7 +33,13 @@ public class ServicesConfig {
     private static final String envServices = String.format("%s.%s", env(), rootServices);
     private static final String govUkEnvServices = String.format("govuk-tax.%s.services", env());
 
-    private static AuditConnector auditConnector;
+    private static AuditConnector auditConnector = () -> LoadAuditingConfig.apply("auditing");
+    private static AuthConnector authConnector = () -> baseUrl("auth");
+
+    public static void initConnectors(AuditConnector auditConnector, AuthConnector authConnector) {
+        ServicesConfig.auditConnector = auditConnector;
+        ServicesConfig.authConnector = authConnector;
+    }
 
     public static String loadConfig(String key) throws Exception {
         return Optional.ofNullable(Configuration.root().getString(key)).orElseThrow(() -> new Exception(String.format("Missing configuration key: %s", key)));
@@ -79,11 +86,11 @@ public class ServicesConfig {
     }
 
     public static AuditConnector auditConnector() {
-        if(auditConnector == null) {
-            auditConnector = () -> LoadAuditingConfig.apply("auditing");
-        }
-
         return auditConnector;
+    }
+
+    public static AuthConnector authConnector() {
+        return authConnector;
     }
 
     public static Configuration getConfConf(String name, Configuration defaultVal) {

@@ -25,27 +25,17 @@ import play.mvc.Http;
 import play.mvc.Result;
 import uk.gov.hmrc.play.java.config.GraphiteConfig;
 import uk.gov.hmrc.play.java.config.ServicesConfig;
-import uk.gov.hmrc.play.java.filters.LoggingFilter;
-import uk.gov.hmrc.play.java.filters.NoCacheFilter;
-import uk.gov.hmrc.play.java.filters.RecoveryFilter;
-import uk.gov.hmrc.play.java.filters.RoutingFilter;
+import uk.gov.hmrc.play.java.filters.*;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.Arrays;
 
 import static uk.gov.hmrc.play.java.config.ServicesConfig.getConfString;
 
 public abstract class DefaultMicroserviceGlobal extends GlobalSettings {
-    protected abstract MicroserviceAuthFilter microserviceAuthFilter();
-    protected abstract MicroserviceAuditFilter microserviceAuditFilter();
-    protected abstract ErrorAuditing errorAuditing();
-
     private Class[] defaultMicroserviceFilters = new Class[]{
             JavaMetricsFilter.class,
-            // Optional AuthFilter
-            microserviceAuditFilter().getClass(),
+            MicroserviceAuthFilter.class,
+            MicroserviceAuditFilter.class,
             LoggingFilter.class,
             NoCacheFilter.class,
             RoutingFilter.class,
@@ -55,8 +45,14 @@ public abstract class DefaultMicroserviceGlobal extends GlobalSettings {
     private JsonErrorHandling jsonErrorHandling = new JsonErrorHandling();
     private GraphiteConfig graphiteConfig = null;
 
+    private ErrorAuditing errorAuditing = new ErrorAuditing();
+
     private String appName() {
         return ServicesConfig.appName();
+    }
+
+    public ErrorAuditing errorAuditing() {
+        return errorAuditing;
     }
 
     @Override
@@ -78,14 +74,11 @@ public abstract class DefaultMicroserviceGlobal extends GlobalSettings {
 
     @Override
     public <T extends play.api.mvc.EssentialFilter> Class<T>[] filters() {
-        List<Class> filters = new ArrayList<>();
-        Collections.addAll(filters, defaultMicroserviceFilters);
-
-        if(Optional.ofNullable(microserviceAuthFilter()).isPresent()) {
-            filters.add(1, microserviceAuthFilter().getClass());
+        if(ServicesConfig.authConnector() == null) {
+            return (Class[]) Arrays.stream(defaultMicroserviceFilters).filter(f -> !f.isAssignableFrom(MicroserviceAuthFilter.class)).toArray(size -> new Class[size]);
+        } else {
+            return defaultMicroserviceFilters;
         }
-
-        return filters.toArray(defaultMicroserviceFilters);
     }
 
     @Override

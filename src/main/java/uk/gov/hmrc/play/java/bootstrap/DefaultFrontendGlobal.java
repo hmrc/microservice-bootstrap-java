@@ -28,15 +28,9 @@ import play.libs.F;
 import play.mvc.Http.RequestHeader;
 import play.mvc.Result;
 import uk.gov.hmrc.crypto.ApplicationCrypto;
-import uk.gov.hmrc.play.audit.filters.FrontendAuditFilter;
-import uk.gov.hmrc.play.frontend.filters.DeviceIdCookieFilter;
-import uk.gov.hmrc.play.frontend.filters.SessionCookieCryptoFilter;
+import uk.gov.hmrc.play.java.filters.*;
 import uk.gov.hmrc.play.java.config.GraphiteConfig;
 import uk.gov.hmrc.play.java.config.ServicesConfig;
-import uk.gov.hmrc.play.java.filters.CacheControlFilter;
-import uk.gov.hmrc.play.java.filters.LoggingFilter;
-import uk.gov.hmrc.play.java.filters.RecoveryFilter;
-import uk.gov.hmrc.play.java.filters.RoutingFilter;
 import uk.gov.hmrc.play.java.filters.frontend.CSRFExceptionsFilter;
 import uk.gov.hmrc.play.java.filters.frontend.HeadersFilter;
 
@@ -58,6 +52,7 @@ public abstract class DefaultFrontendGlobal extends GlobalSettings {
     };
 
     private GraphiteConfig graphiteConfig = null;
+    private ErrorAuditing errorAuditing = new ErrorAuditing();
 
     private final Class[] securityFilters = new Class[]{SecurityHeadersFilter.class};
 
@@ -66,7 +61,6 @@ public abstract class DefaultFrontendGlobal extends GlobalSettings {
     }
 
     protected abstract ShowErrorPage showErrorPage();
-    protected abstract ErrorAuditing errorAuditing();
 
     @Override
     public void onStart(Application app) {
@@ -90,6 +84,10 @@ public abstract class DefaultFrontendGlobal extends GlobalSettings {
     public F.Promise<Result> onBadRequest(RequestHeader rh, String error) {
         errorAuditing().onBadRequest(rh, error);
         return showErrorPage().onBadRequest(rh, error);
+    }
+
+    private ErrorAuditing errorAuditing() {
+        return errorAuditing;
     }
 
     @Override

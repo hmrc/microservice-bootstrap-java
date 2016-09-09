@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.play.java.config;
+package uk.gov.hmrc.play.java.bootstrap;
 
 import com.typesafe.config.ConfigFactory;
 import org.junit.Before;
@@ -26,10 +26,9 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import play.mvc.Result;
 import uk.gov.hmrc.play.java.ScalaFixtures;
-import uk.gov.hmrc.play.java.bootstrap.ErrorAuditing;
+import uk.gov.hmrc.play.java.config.ServicesConfig;
 import uk.gov.hmrc.play.java.connectors.AuditConnector;
-import uk.gov.hmrc.play.java.bootstrap.DefaultFrontendGlobal;
-import uk.gov.hmrc.play.java.bootstrap.ShowErrorPage;
+import uk.gov.hmrc.play.java.connectors.AuthConnector;
 import uk.gov.hmrc.play.java.filters.WhitelistFilter;
 
 import java.io.File;
@@ -47,16 +46,9 @@ import static play.test.Helpers.*;
 public class DefaultFrontendGlobalTest extends ScalaFixtures {
     private Http.RequestHeader rh = mock(Http.RequestHeader.class);
     private int futureTimeout = 3000;
-    private AuditConnector auditConnector = mock(AuditConnector.class);
 
     private class DefaultFrontendGlobalWithShowError extends DefaultFrontendGlobal {
         private ShowErrorPage errorPage = (pageTitle, heading, message, request) -> views.html.global_error.render(pageTitle, heading, message);
-        private ErrorAuditing errorAuditing = () -> auditConnector;
-
-        @Override
-        protected ErrorAuditing errorAuditing() {
-            return errorAuditing;
-        }
 
         @Override
         protected ShowErrorPage showErrorPage() {

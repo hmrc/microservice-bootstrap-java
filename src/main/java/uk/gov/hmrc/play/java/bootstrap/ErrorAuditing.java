@@ -27,117 +27,120 @@ import uk.gov.hmrc.play.audit.http.config.ErrorAuditingSettings$class;
 import uk.gov.hmrc.play.audit.model.DataEvent;
 import uk.gov.hmrc.play.http.HeaderCarrier;
 import uk.gov.hmrc.play.java.config.ServicesConfig;
+import uk.gov.hmrc.play.java.connectors.AuditConnector;
 
-@FunctionalInterface
-public interface ErrorAuditing extends ErrorAuditingSettings, JavaGlobalSettings {
-    String unexpectedError = "Unexpected error";
-    String notFoundError = "Resource Endpoint Not Found";
-    String badRequestError = "Request bad format exception";
+public class ErrorAuditing implements ErrorAuditingSettings, JavaGlobalSettings {
+    private String unexpectedError = "Unexpected error";
+    private String notFoundError = "Resource Endpoint Not Found";
+    private String badRequestError = "Request bad format exception";
 
-    default RequestHeader getCurrentRequestHeader() {
+    public RequestHeader getCurrentRequestHeader() {
         return Http.Context.current()._requestHeader();
     }
 
-    default void onError(Http.RequestHeader rh, Throwable ex) {
+    public void onError(Http.RequestHeader rh, Throwable ex) {
         onError(getCurrentRequestHeader(), ex);
     }
 
-    default void onHandlerNotFound(Http.RequestHeader rh) {
+    public void onHandlerNotFound(Http.RequestHeader rh) {
         onHandlerNotFound(getCurrentRequestHeader());
     }
 
-    default void onBadRequest(Http.RequestHeader rh, String error) {
+    public void onBadRequest(Http.RequestHeader rh, String error) {
         onBadRequest(getCurrentRequestHeader(), error);
     }
 
     @Override
-    default Future<Result> onError(RequestHeader request, Throwable ex) {
+    public Future<Result> onError(RequestHeader request, Throwable ex) {
         return ErrorAuditingSettings$class.onError(this, request, ex);
     }
 
     @Override
-    default Future<Result> onHandlerNotFound(RequestHeader request) {
+    public Future<Result> onHandlerNotFound(RequestHeader request) {
         return ErrorAuditingSettings$class.onHandlerNotFound(this, request);
     }
 
     @Override
-    default Future<Result> onBadRequest(RequestHeader request, String error) {
+    public Future<Result> onBadRequest(RequestHeader request, String error) {
         return ErrorAuditingSettings$class.onBadRequest(this, request, error);
     }
 
     @Override
-    default String appName() {
+    public String appName() {
         return ServicesConfig.appName();
     }
 
-    default HeaderCarrier getDefaultHeaderCarrier(String eventType, String transactionName, RequestHeader request) {
+    public HeaderCarrier getDefaultHeaderCarrier(String eventType, String transactionName, RequestHeader request) {
         return dataEvent$default$4(eventType, transactionName, request);
     }
 
     @Override
-    default HeaderCarrier dataEvent$default$4(String eventType, String transactionName, RequestHeader request) {
+    public HeaderCarrier dataEvent$default$4(String eventType, String transactionName, RequestHeader request) {
         return HttpAuditEvent$class.dataEvent$default$4(this, eventType, transactionName, request);
     }
 
     @Override
-    default DataEvent dataEvent(String eventType, String transactionName, RequestHeader request, HeaderCarrier hc) {
+    public DataEvent dataEvent(String eventType, String transactionName, RequestHeader request, HeaderCarrier hc) {
         return HttpAuditEvent$class.dataEvent(this, eventType, transactionName, request, hc);
     }
 
-    uk.gov.hmrc.play.audit.http.connector.AuditConnector auditConnector();
+    @Override
+    public AuditConnector auditConnector() {
+        return ServicesConfig.auditConnector();
+    }
 
     // Scala compatibility required methods
-    default auditDetailKeys$ auditDetailKeys() {
+    public auditDetailKeys$ auditDetailKeys() {
         return new auditDetailKeys$();
     }
 
     // Scala compatibility required methods
-    default headers$ headers() {
+    public headers$ headers() {
         return new headers$();
     }
 
     // Scala compatibility required methods
-    default String uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$$unexpectedError() {
+    public String uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$$unexpectedError() {
         return unexpectedError;
     }
 
     // Scala compatibility required methods
-    default void uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$_setter_$uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$$unexpectedError_$eq(String unexpectedError) {
+    public void uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$_setter_$uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$$unexpectedError_$eq(String unexpectedError) {
         //this.unexpectedError = unexpectedError;
     }
 
     // Scala compatibility required methods
-    default String uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$$notFoundError() {
+    public String uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$$notFoundError() {
         return notFoundError;
     }
 
     // Scala compatibility required methods
-    default void uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$_setter_$uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$$notFoundError_$eq(String notFoundError) {
+    public void uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$_setter_$uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$$notFoundError_$eq(String notFoundError) {
         //this.notFoundError = notFoundError;
     }
 
     // Scala compatibility required methods
-    default String uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$$badRequestError() {
+    public String uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$$badRequestError() {
         return badRequestError;
     }
 
     // Scala compatibility required methods
-    default void uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$_setter_$uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$$badRequestError_$eq(String badRequestError) {
+    public void uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$_setter_$uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$$badRequestError_$eq(String badRequestError) {
         //this.badRequestError = badRequestError;
     }
 
     // Scala compatibility required methods
-    default Future<Result> uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$$super$onHandlerNotFound(RequestHeader rh) {
+    public Future<Result> uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$$super$onHandlerNotFound(RequestHeader rh) {
         return GlobalSettings$class.onHandlerNotFound(this, rh);
     }
 
     // Scala compatibility required methods
-    default Future<Result> uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$$super$onBadRequest(RequestHeader rh, String err) {
+    public Future<Result> uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$$super$onBadRequest(RequestHeader rh, String err) {
         return GlobalSettings$class.onBadRequest(this, rh, err);
     }
 
     // Scala compatibility required methods
-    default Future<Result> uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$$super$onError(RequestHeader rh, Throwable ex) {
+    public Future<Result> uk$gov$hmrc$play$audit$http$config$ErrorAuditingSettings$$super$onError(RequestHeader rh, Throwable ex) {
         return GlobalSettings$class.onError(this, rh, ex);
     }
 }
