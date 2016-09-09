@@ -43,7 +43,7 @@ import static uk.gov.hmrc.play.java.config.ServicesConfig.getConfBool;
 import static uk.gov.hmrc.play.java.config.ServicesConfig.getConfConf;
 
 @FunctionalInterface
-interface MicroserviceAuthFilter extends AuthorisationFilter {
+public interface MicroserviceAuthFilter extends AuthorisationFilter {
     AuthConnector authConnector();
 
     @Override

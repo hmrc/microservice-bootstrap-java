@@ -35,7 +35,7 @@ import uk.gov.hmrc.play.java.config.ServicesConfig;
 import static uk.gov.hmrc.play.java.config.ServicesConfig.getConfBool;
 
 @FunctionalInterface
-interface MicroserviceAuditFilter extends AuditFilter {
+public interface MicroserviceAuditFilter extends AuditFilter {
     int maxBodySize = 32665;
 
     uk.gov.hmrc.play.audit.http.connector.AuditConnector auditConnector();
