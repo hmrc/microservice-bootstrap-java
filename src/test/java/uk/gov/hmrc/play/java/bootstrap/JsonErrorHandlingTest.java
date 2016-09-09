@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.play.java.microservice.bootstrap;
+package uk.gov.hmrc.play.java.bootstrap;
 
 
 import org.junit.Before;
@@ -27,6 +27,8 @@ import uk.gov.hmrc.play.http.BadRequestException;
 import uk.gov.hmrc.play.http.NotFoundException;
 import uk.gov.hmrc.play.http.UnauthorizedException;
 import uk.gov.hmrc.play.java.ScalaFixtures;
+import uk.gov.hmrc.play.java.filters.MicroserviceAuditFilter;
+import uk.gov.hmrc.play.java.filters.MicroserviceAuthFilter;
 import uk.gov.hmrc.play.java.connectors.AuditConnector;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -36,22 +38,7 @@ import static org.mockito.Mockito.when;
 
 public class JsonErrorHandlingTest extends ScalaFixtures {
 
-    private DefaultMicroserviceGlobal jsh = new DefaultMicroserviceGlobal() {
-        @Override
-        protected MicroserviceAuthFilter microserviceAuthFilter() {
-            return mock(MicroserviceAuthFilter.class);
-        }
-
-        @Override
-        protected MicroserviceAuditFilter microserviceAuditFilter() {
-            return () -> mock(AuditConnector.class);
-        }
-
-        @Override
-        protected ErrorAuditing errorAuditing() {
-            return () -> mock(AuditConnector.class);
-        }
-    };
+    private DefaultMicroserviceGlobal jsh = new DefaultMicroserviceGlobal() {};
 
     private Http.RequestHeader requestHeader = mock(Http.RequestHeader.class);
 

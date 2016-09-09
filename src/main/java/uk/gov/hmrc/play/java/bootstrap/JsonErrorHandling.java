@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.play.java.microservice.bootstrap;
+package uk.gov.hmrc.play.java.bootstrap;
 
 import akka.dispatch.Futures;
 import play.GlobalSettings;
@@ -41,13 +41,13 @@ public class JsonErrorHandling extends GlobalSettings {
         ErrorResponse resp;
 
         if (ex.getCause() instanceof HttpException) {
-            resp = ErrorResponse.apply(((HttpException) ex.getCause()).responseCode(), ex.getMessage(), apply$default$3(), apply$default$4());
+            resp = apply(((HttpException) ex.getCause()).responseCode(), ex.getMessage(), apply$default$3(), apply$default$4());
         } else if (ex.getCause() instanceof Upstream4xxResponse) {
-            resp = ErrorResponse.apply(((Upstream4xxResponse) ex).reportAs(), ex.getMessage(), apply$default$3(), apply$default$4());
+            resp = apply(((Upstream4xxResponse) ex).reportAs(), ex.getMessage(), apply$default$3(), apply$default$4());
         } else if (ex.getCause() instanceof Upstream5xxResponse) {
-            resp = ErrorResponse.apply(((Upstream5xxResponse) ex).reportAs(), ex.getMessage(), apply$default$3(), apply$default$4());
+            resp = apply(((Upstream5xxResponse) ex).reportAs(), ex.getMessage(), apply$default$3(), apply$default$4());
         } else {
-            resp = ErrorResponse.apply(INTERNAL_SERVER_ERROR, ex.getMessage(), apply$default$3(), apply$default$4());
+            resp = apply(INTERNAL_SERVER_ERROR, ex.getMessage(), apply$default$3(), apply$default$4());
         }
 
         return F.Promise.pure(status(resp.statusCode(), toJson(resp)));

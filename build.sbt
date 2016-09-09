@@ -18,13 +18,16 @@ testOptions in Test += Tests.Argument(TestFrameworks.JUnit, "--ignore-runners=or
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-o", "-u", "target/test-reports", "-h", "target/test-reports/html-report")
 // [END] Temporary solution until release of new version of sbt-auto-build with junit fix
 
-val plugins = SbtAutoBuildPlugin && SbtGitVersioning
+val plugins = SbtTwirl && SbtAutoBuildPlugin && SbtGitVersioning
 
 val compileDependencies = Seq(
   filters,
   javaCore,
   "com.typesafe.play" %% "play" % PlayVersion.current,
+  "uk.gov.hmrc" %% "crypto" % "3.1.0",
   "uk.gov.hmrc" %% "play-filters-java" % "0.5.0",
+  "uk.gov.hmrc" %% "play-whitelist-filter" % "1.1.0",
+  "uk.gov.hmrc" %% "frontend-bootstrap" % "6.5.0",
   "uk.gov.hmrc" %% "play-authorisation" % "3.3.0",
   "uk.gov.hmrc" %% "microservice-bootstrap" % "4.4.0",
   "uk.gov.hmrc" %% "play-graphite" % "2.0.0",

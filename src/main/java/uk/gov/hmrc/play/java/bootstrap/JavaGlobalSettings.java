@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.play.java.microservice.bootstrap;
+package uk.gov.hmrc.play.java.bootstrap;
 
 import play.api.*;
 import play.api.mvc.EssentialAction;

@@ -14,25 +14,23 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.play.java.microservice.controller;
+package uk.gov.hmrc.play.java.controller;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
-import org.junit.Before;
 import org.junit.Test;
-import play.api.mvc.Codec;
 import play.api.mvc.Result;
 import play.core.j.JavaParsers;
 import play.libs.F;
 import play.mvc.Http;
+import play.mvc.Results;
 import uk.gov.hmrc.play.java.ScalaFixtures;
+import uk.gov.hmrc.play.java.controller.BaseController;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static play.libs.Json.toJson;
-import static play.mvc.Results.ok;
+import static play.mvc.Http.Status.OK;
 
 public class Utf8MimeTypesTest extends ScalaFixtures {
 
@@ -43,19 +41,24 @@ public class Utf8MimeTypesTest extends ScalaFixtures {
         when(request.body()).thenReturn(jsonBody);
         when(jsonBody.asJson()).thenReturn(new TextNode("test"));
 
-        Result applicationJsonWithUtf8Charset = await(controller.withJsonBody(String.class, (str) -> F.Promise.pure(ok(toJson(str))))).toScala();
+        Result applicationJsonWithUtf8Charset = await(controller.withJsonBody(String.class, (str) -> F.Tuple(OK, str))).toScala();
 
         assertThat(applicationJsonWithUtf8Charset.header().headers().get("Content-Type").get(), is("application/json; charset=utf-8"));
     }
 
     @Test
     public void controllerMinetypesShouldHaveUtf8SetTextPlain() {
-        BaseController controller = new BaseController();
+        class BaseControllerExt extends BaseController {
+            public F.Promise<play.mvc.Result> doSomething() {
+                return F.Promise.pure(Results.ok(""));
+            }
+        };
+
         Http.RequestBody jsonBody = mock(JavaParsers.DefaultRequestBody.class);
         when(request.body()).thenReturn(jsonBody);
         when(jsonBody.asJson()).thenReturn(new TextNode("test"));
 
-        Result applicationJsonWithUtf8Charset = await(controller.withJsonBody(String.class, (str) -> F.Promise.pure(ok(str)))).toScala();
+        Result applicationJsonWithUtf8Charset = await(new BaseControllerExt().doSomething()).toScala();
 
         assertThat(applicationJsonWithUtf8Charset.header().headers().get("Content-Type").get(), is("text/plain; charset=utf-8"));
     }

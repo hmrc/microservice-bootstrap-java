@@ -20,7 +20,7 @@ import play.api.Application;
 import play.api.Configuration;
 import scala.Option;
 import uk.gov.hmrc.play.graphite.GraphiteConfig$class;
-import uk.gov.hmrc.play.java.microservice.bootstrap.JavaGlobalSettings;
+import uk.gov.hmrc.play.java.bootstrap.JavaGlobalSettings;
 
 public class GraphiteConfig implements uk.gov.hmrc.play.graphite.GraphiteConfig, JavaGlobalSettings {
     private final String confBase;

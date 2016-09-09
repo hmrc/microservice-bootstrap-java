@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.play.java.microservice.bootstrap;
+package uk.gov.hmrc.play.java.bootstrap;
 
 
 import akka.dispatch.Futures;
 import org.junit.Before;
 import org.junit.Test;
 import play.api.PlayException;
+import play.api.mvc.EssentialFilter;
 import play.api.mvc.Result;
 import play.api.test.FakeHeaders;
+import play.i18n.Messages;
 import play.mvc.Http;
 import uk.gov.hmrc.play.audit.EventTypes$;
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector;
@@ -30,26 +32,31 @@ import uk.gov.hmrc.play.audit.http.connector.AuditResult;
 import uk.gov.hmrc.play.audit.model.AuditEvent;
 import uk.gov.hmrc.play.http.NotFoundException;
 import uk.gov.hmrc.play.java.ScalaFixtures;
+import uk.gov.hmrc.play.java.filters.MicroserviceAuditFilter;
+import uk.gov.hmrc.play.java.filters.MicroserviceAuthFilter;
+import uk.gov.hmrc.play.java.filters.WhitelistFilter;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static play.test.Helpers.HTMLUNIT;
+import static play.test.Helpers.running;
+import static play.test.Helpers.testServer;
 
 public class DefaultMicroserviceGlobalTest extends ScalaFixtures {
-
-    private AuditConnector auditConnector = mock(uk.gov.hmrc.play.java.connectors.AuditConnector.class);
 
     private List<AuditEvent> recordedEvents;
 
     @Before
     public void setUp() {
         recordedEvents = new ArrayList<>();
-        initHttpContext();
 
         when(header.headers()).thenReturn(new FakeHeaders(FakeHeaders.apply$default$1()));
         when(header.method()).thenReturn("GET");
@@ -60,22 +67,7 @@ public class DefaultMicroserviceGlobalTest extends ScalaFixtures {
         });
     }
 
-    private DefaultMicroserviceGlobal testRestGlobal = new DefaultMicroserviceGlobal() {
-        @Override
-        protected MicroserviceAuthFilter microserviceAuthFilter() {
-            return mock(MicroserviceAuthFilter.class);
-        }
-
-        @Override
-        protected MicroserviceAuditFilter microserviceAuditFilter() {
-            return () -> auditConnector;
-        }
-
-        @Override
-        protected ErrorAuditing errorAuditing() {
-            return () -> auditConnector;
-        }
-    };
+    private DefaultMicroserviceGlobal testRestGlobal = new DefaultMicroserviceGlobal() {};
 
     @Test
     public void inACaseOfAnApplicationExceptionTheFrameworkShouldSendAnEventToDataStreamAndReturn404StatusCodeForANotFoundException() {
@@ -102,5 +94,13 @@ public class DefaultMicroserviceGlobalTest extends ScalaFixtures {
         assertThat(result.header().status(), is(400));
         assertThat(recordedEvents.isEmpty(), is(false));
         assertThat(recordedEvents.get(0).auditType(), is(EventTypes$.MODULE$.ServerValidationError()));
+    }
+
+    @Test
+    public void renderNotFoundWithServer() {
+        running(testServer(3333, fakeApplication(testRestGlobal)), HTMLUNIT, browser -> {
+            browser.goTo("http://localhost:3333/notFound").pageSource();
+            assertThat(browser.pageSource(), is("{}"));
+        });
     }
 }
