@@ -87,15 +87,6 @@ public class BaseController extends Controller {
         return new F.Tuple<>(status, null);
     }
 
-/*
-    public F.Promise<Result> doSomething() {
-        withJsonBody(String.class, object -> {
-            // Do something with object
-            return response(OK, "Hello World!");
-        });
-    }
-*/
-
     @FunctionalInterface
     public interface ToPromiseResult<T> {
         F.Tuple<Integer, Object> apply(T type);

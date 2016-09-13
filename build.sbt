@@ -29,6 +29,7 @@ val compileDependencies = Seq(
   "uk.gov.hmrc" %% "play-whitelist-filter" % "1.1.0",
   "uk.gov.hmrc" %% "frontend-bootstrap" % "6.5.0",
   "uk.gov.hmrc" %% "play-authorisation" % "3.3.0",
+  "uk.gov.hmrc" %% "play-authorised-frontend" % "5.7.0",
   "uk.gov.hmrc" %% "microservice-bootstrap" % "4.4.0",
   "uk.gov.hmrc" %% "play-graphite" % "2.0.0",
   "uk.gov.hmrc" %% "play-config" % "2.0.1",
