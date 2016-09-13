@@ -21,26 +21,18 @@ import akka.dispatch.Futures;
 import org.junit.Before;
 import org.junit.Test;
 import play.api.PlayException;
-import play.api.mvc.EssentialFilter;
 import play.api.mvc.Result;
 import play.api.test.FakeHeaders;
-import play.i18n.Messages;
 import play.mvc.Http;
 import uk.gov.hmrc.play.audit.EventTypes$;
-import uk.gov.hmrc.play.audit.http.connector.AuditConnector;
 import uk.gov.hmrc.play.audit.http.connector.AuditResult;
 import uk.gov.hmrc.play.audit.model.AuditEvent;
 import uk.gov.hmrc.play.http.NotFoundException;
 import uk.gov.hmrc.play.java.ScalaFixtures;
-import uk.gov.hmrc.play.java.filters.MicroserviceAuditFilter;
-import uk.gov.hmrc.play.java.filters.MicroserviceAuthFilter;
-import uk.gov.hmrc.play.java.filters.WhitelistFilter;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
 import static org.mockito.Matchers.any;

@@ -16,23 +16,13 @@
 
 package uk.gov.hmrc.play.java.bootstrap;
 
-import org.hamcrest.core.Is;
 import org.junit.Test;
-import play.Configuration;
 import uk.gov.hmrc.play.java.ScalaFixtures;
-import uk.gov.hmrc.play.java.config.ServicesConfig;
-import uk.gov.hmrc.play.java.connectors.AuthConnector;
-import uk.gov.hmrc.play.java.connectors.AuditConnector;
-import uk.gov.hmrc.play.java.filters.MicroserviceAuditFilter;
-import uk.gov.hmrc.play.java.filters.MicroserviceAuthFilter;
-import uk.gov.hmrc.play.java.filters.WhitelistFilter;
 
-import java.util.Arrays;
 import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 import static play.test.Helpers.running;
 
 public class MicroserviceFiltersTest extends ScalaFixtures {

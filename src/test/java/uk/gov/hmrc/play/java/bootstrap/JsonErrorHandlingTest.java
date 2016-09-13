@@ -27,9 +27,6 @@ import uk.gov.hmrc.play.http.BadRequestException;
 import uk.gov.hmrc.play.http.NotFoundException;
 import uk.gov.hmrc.play.http.UnauthorizedException;
 import uk.gov.hmrc.play.java.ScalaFixtures;
-import uk.gov.hmrc.play.java.filters.MicroserviceAuditFilter;
-import uk.gov.hmrc.play.java.filters.MicroserviceAuthFilter;
-import uk.gov.hmrc.play.java.connectors.AuditConnector;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;

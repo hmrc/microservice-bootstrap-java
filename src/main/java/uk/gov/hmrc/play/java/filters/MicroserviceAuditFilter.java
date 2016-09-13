@@ -38,6 +38,7 @@ import static uk.gov.hmrc.play.java.config.ServicesConfig.getBoolean;
 public class MicroserviceAuditFilter implements AuditFilter {
     private int maxBodySize = 32665;
 
+    @Override
     public AuditConnector auditConnector() {
         return ServicesConfig.auditConnector();
     }
@@ -68,17 +69,17 @@ public class MicroserviceAuditFilter implements AuditFilter {
     }
 
     @Override
-    public Future<String> getBody(play.api.mvc.Result result) {
+    public Future<String> getBody(Result result) {
         return AuditFilter$class.getBody(this, result);
     }
 
     @Override
-    public Iteratee<byte[], Result> captureRequestBody(Iteratee<byte[], play.api.mvc.Result> next, Promise<byte[]> onDone) {
+    public Iteratee<byte[], Result> captureRequestBody(Iteratee<byte[], Result> next, Promise<byte[]> onDone) {
         return AuditFilter$class.captureRequestBody(this, next, onDone);
     }
 
     @Override
-    public Iteratee<byte[], play.api.mvc.Result> captureResult(Iteratee<byte[], play.api.mvc.Result> next, Future<byte[]> requestBody, Function2<byte[], Try<Result>, BoxedUnit> handler) {
+    public Iteratee<byte[], Result> captureResult(Iteratee<byte[], Result> next, Future<byte[]> requestBody, Function2<byte[], Try<Result>, BoxedUnit> handler) {
         return AuditFilter$class.captureResult(this, next, requestBody, handler);
     }
 
