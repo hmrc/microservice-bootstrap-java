@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.play.java.bootstrap;
 
+import play.GlobalSettings;
 import play.api.mvc.Request;
 import play.api.mvc.RequestHeader;
 import play.libs.F;
@@ -83,5 +84,26 @@ public interface ShowErrorPage extends JavaGlobalSettings, uk.gov.hmrc.play.fron
 
     default Future<play.api.mvc.Result> onBadRequest(RequestHeader request, String error) {
         return ShowErrorPage$class.onBadRequest(this, request, error);
+    }
+
+    default GlobalSettings asJavaGlobalSettings() {
+        uk.gov.hmrc.play.frontend.bootstrap.ShowErrorPage ep = this;
+
+        return new GlobalSettings() {
+            @Override
+            public F.Promise<Result> onError(Http.RequestHeader request, Throwable t) {
+                return wrapAndReturn(ep.onError(getCurrentRequestHeader(), t));
+            }
+
+            @Override
+            public F.Promise<Result> onHandlerNotFound(Http.RequestHeader request) {
+                return wrapAndReturn(ep.onHandlerNotFound(getCurrentRequestHeader()));
+            }
+
+            @Override
+            public F.Promise<Result> onBadRequest(Http.RequestHeader request, String error) {
+                return wrapAndReturn(ep.onBadRequest(getCurrentRequestHeader(), error));
+            }
+        };
     }
 }

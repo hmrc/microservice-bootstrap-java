@@ -40,8 +40,8 @@ import uk.gov.hmrc.play.auth.microservice.filters.AuthorisationFilter$class;
 import uk.gov.hmrc.play.java.config.ServicesConfig;
 
 import static net.ceedubs.ficus.readers.AnyValReaders$.MODULE$;
-import static uk.gov.hmrc.play.java.config.ServicesConfig.getConfBool;
-import static uk.gov.hmrc.play.java.config.ServicesConfig.getConfConf;
+import static uk.gov.hmrc.play.java.config.ServicesConfig.getBoolean;
+import static uk.gov.hmrc.play.java.config.ServicesConfig.getConfiguration;
 
 public class MicroserviceAuthFilter implements AuthorisationFilter {
     public AuthConnector authConnector() {
@@ -61,7 +61,7 @@ public class MicroserviceAuthFilter implements AuthorisationFilter {
 
             @Override
             public Config controllerConfigs() {
-                Configuration conf = getConfConf("controllers", null);
+                Configuration conf = getConfiguration("controllers", null);
 
                 if(conf != null) {
                     return conf.underlying();
@@ -96,7 +96,7 @@ public class MicroserviceAuthFilter implements AuthorisationFilter {
 
     @Override
     public boolean controllerNeedsAuth(String controllerName) {
-        return getConfBool(String.format("controllers.%s.needsAuth", controllerName), true);
+        return getBoolean(String.format("controllers.%s.needsAuth", controllerName), true);
     }
 
     @Override

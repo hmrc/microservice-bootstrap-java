@@ -36,7 +36,7 @@ public class DeviceIdCookieFilter extends uk.gov.hmrc.play.java.filters.frontend
     }
 
     private static String currentSecret() {
-        return Optional.ofNullable(ServicesConfig.getConfString(CURRENT_SECRET, null)).orElseThrow(() -> {
+        return Optional.ofNullable(ServicesConfig.getString(CURRENT_SECRET, null)).orElseThrow(() -> {
             String errorMessage = String.format(MESSAGE, CURRENT_SECRET);
             Logger.error(errorMessage);
             return new SecurityException(errorMessage);
@@ -44,7 +44,7 @@ public class DeviceIdCookieFilter extends uk.gov.hmrc.play.java.filters.frontend
     }
 
     private static List<String> buildListOfPreviousSecrets() {
-        return ServicesConfig.getConfStringList(PREVIOUS_SECRET, emptyList())
+        return ServicesConfig.getStringList(PREVIOUS_SECRET, emptyList())
                 .stream()
                 .map(item -> new String(Base64.decodeBase64(item)))
                 .collect(Collectors.toList());

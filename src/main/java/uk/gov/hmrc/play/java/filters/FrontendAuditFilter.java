@@ -56,9 +56,9 @@ public class FrontendAuditFilter implements uk.gov.hmrc.play.audit.filters.Front
     private int maxBodySize = 32665;
 
     public FrontendAuditFilter() {
-        maskedFormFields = getConfStringList("filter.audit.maskedFormFields", Collections.singletonList("password"));
-        applicationPort = getConfInteger("filter.audit.applicationPort", null);
-        auditConnector = auditConnector();
+        maskedFormFields = getStringList("filter.audit.maskedFormFields", Collections.singletonList("password"));
+        applicationPort = getInteger("filter.audit.applicationPort", null);
+        auditConnector = ServicesConfig.auditConnector();
     }
 
     @Override
@@ -139,7 +139,7 @@ public class FrontendAuditFilter implements uk.gov.hmrc.play.audit.filters.Front
 
     @Override
     public boolean controllerNeedsAuditing(String controllerName) {
-        return getConfBool(String.format("controllers.%s.needsAuditing", controllerName), true);
+        return getBoolean(String.format("controllers.%s.needsAuditing", controllerName), true);
     }
 
     @Override

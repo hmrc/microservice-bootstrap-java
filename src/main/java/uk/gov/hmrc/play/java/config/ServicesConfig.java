@@ -22,16 +22,14 @@ import uk.gov.hmrc.play.config.RunMode$;
 import uk.gov.hmrc.play.java.connectors.AuthConnector;
 import uk.gov.hmrc.play.java.connectors.AuditConnector;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 public class ServicesConfig {
-    private static final String rootServices = "microservice.services";
-    private static final String envServices = String.format("%s.%s", env(), rootServices);
-    private static final String govUkEnvServices = String.format("govuk-tax.%s.services", env());
+    private static final String ROOT_SERVICES = "microservice.services";
+    private static final String ENV_SERVICES = String.format("%s.%s", env(), ROOT_SERVICES);
+    private static final String GOV_UK_ENV_SERVICES = String.format("govuk-tax.%s.services", env());
 
     private static AuditConnector auditConnector = () -> LoadAuditingConfig.apply("auditing");
     private static AuthConnector authConnector = () -> baseUrl("auth");
@@ -46,34 +44,18 @@ public class ServicesConfig {
     }
 
     public static String defaultProtocol() {
-        return getConfString("protocol", "http");
+        return getString("protocol", "http");
     }
 
     public static Configuration config(String serviceName) {
-        return Optional.ofNullable(getConfConf(serviceName, null))
+        return Optional.ofNullable(getConfiguration(serviceName, null))
                 .orElseThrow(() -> new IllegalArgumentException(String.format("Configuration for service %s not found", serviceName)));
     }
 
-    public static URL url(String serviceName, String path) {
-        try {
-            return new URL(String.format("%s/%s", baseUrl(serviceName), path));
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public static URL url(String serviceName) {
-        try {
-            return new URL(baseUrl(serviceName));
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static String baseUrl(String serviceName) {
-        String protocol = getConfString(String.format("%s.protocol", serviceName), defaultProtocol());
-        String host = Optional.ofNullable(getConfString(String.format("%s.host", serviceName), null)).orElseThrow(() -> new RuntimeException(String.format("Could not find config %s.host", serviceName)));
-        int port = Optional.ofNullable(getConfInteger(String.format("%s.port", serviceName), null)).orElseThrow(() -> new RuntimeException(String.format("Could not find config %s.port", serviceName)));
+        String protocol = getString(String.format("%s.protocol", serviceName), defaultProtocol());
+        String host = Optional.ofNullable(getString(String.format("%s.host", serviceName), null)).orElseThrow(() -> new RuntimeException(String.format("Could not find config %s.host", serviceName)));
+        int port = Optional.ofNullable(getInteger(String.format("%s.port", serviceName), null)).orElseThrow(() -> new RuntimeException(String.format("Could not find config %s.port", serviceName)));
         return String.format("%s://%s:%d", protocol, host, port);
     }
 
@@ -82,7 +64,7 @@ public class ServicesConfig {
     }
 
     public static String appName() {
-        return getConfString("appName", "APP NAME NOT SET");
+        return getString("appName", "APP NAME NOT SET");
     }
 
     public static AuditConnector auditConnector() {
@@ -93,29 +75,29 @@ public class ServicesConfig {
         return authConnector;
     }
 
-    public static Configuration getConfConf(String name, Configuration defaultVal) {
+    public static Configuration getConfiguration(String name, Configuration defaultVal) {
         return call(Configuration::getConfig, name, defaultVal);
     }
 
-    public static boolean getConfBool(String name, Boolean defaultVal) {
+    public static boolean getBoolean(String name, Boolean defaultVal) {
         return call(Configuration::getBoolean, name, defaultVal);
     }
 
-    public static String getConfString(String name, String defaultVal)  {
+    public static String getString(String name, String defaultVal)  {
         return call(Configuration::getString, name, defaultVal);
     }
 
-    public static Integer getConfInteger(String name, Integer defaultVal)  {
+    public static Integer getInteger(String name, Integer defaultVal)  {
         return call(Configuration::getInt, name, defaultVal);
     }
 
-    public static List<String> getConfStringList(String name, List<String> defaultVal) {
+    public static List<String> getStringList(String name, List<String> defaultVal) {
         return call(Configuration::getStringList, name, defaultVal);
     }
 
     private static <T> T call(ConfigFunc<T> func, String basePath, T defaultValue) {
         Configuration conf = Configuration.root();
-        return Stream.of(envServices, govUkEnvServices, env(), rootServices, null)
+        return Stream.of(ENV_SERVICES, GOV_UK_ENV_SERVICES, env(), ROOT_SERVICES, null)
                 .map((v) -> Optional.ofNullable(func.get(conf, v == null ? basePath : String.format("%s.%s", v, basePath))))
                 .filter(Optional::isPresent)
                 .map(Optional::get)

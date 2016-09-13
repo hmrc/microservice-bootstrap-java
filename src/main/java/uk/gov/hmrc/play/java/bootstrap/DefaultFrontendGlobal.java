@@ -23,21 +23,17 @@ import play.GlobalSettings;
 import play.Logger;
 import play.api.mvc.EssentialFilter;
 import play.filters.csrf.CSRFFilter;
-import play.filters.headers.SecurityHeadersFilter;
-import play.libs.F;
-import play.mvc.Http.RequestHeader;
-import play.mvc.Result;
 import uk.gov.hmrc.crypto.ApplicationCrypto;
-import uk.gov.hmrc.play.java.filters.*;
-import uk.gov.hmrc.play.java.config.GraphiteConfig;
 import uk.gov.hmrc.play.java.config.ServicesConfig;
+import uk.gov.hmrc.play.java.filters.*;
 import uk.gov.hmrc.play.java.filters.frontend.CSRFExceptionsFilter;
 import uk.gov.hmrc.play.java.filters.frontend.HeadersFilter;
 
-import static uk.gov.hmrc.play.java.config.ServicesConfig.getConfBool;
+import static uk.gov.hmrc.play.java.config.ServicesConfig.getBoolean;
+import static uk.gov.hmrc.play.java.config.ServicesConfig.getString;
 
-public abstract class DefaultFrontendGlobal extends GlobalSettings {
-    private Class[] frontendFilters = new Class[]{
+public abstract class DefaultFrontendGlobal extends BootstrapParent {
+    private Class[] defaultFilters = new Class[]{
             JavaMetricsFilter.class,
             HeadersFilter.class,
             SessionCookieCryptoFilter.class,
@@ -51,64 +47,27 @@ public abstract class DefaultFrontendGlobal extends GlobalSettings {
             RecoveryFilter.class
     };
 
-    private GraphiteConfig graphiteConfig = null;
-    private ErrorAuditing errorAuditing = new ErrorAuditing();
-
-    private final Class[] securityFilters = new Class[]{SecurityHeadersFilter.class};
-
-    private boolean enableSecurityHeaderFilter() {
-        return getConfBool("security.headers.filter.enabled", true);
-    }
-
     protected abstract ShowErrorPage showErrorPage();
+
+    public GlobalSettings errorHandler() {
+        return showErrorPage().asJavaGlobalSettings();
+    }
 
     @Override
     public void onStart(Application app) {
         Logger.info("Starting frontend : {} : in mode {}", ServicesConfig.appName(), app.getWrappedApplication().mode());
         ApplicationCrypto.verifyConfiguration();
-        graphiteConfig = new GraphiteConfig("microservice.metrics");
-        graphiteConfig.onStart(app);
-        RoutingFilter.init(rh -> showErrorPage().onHandlerNotFound(rh), ServicesConfig.getConfString("routing.blocked.paths", null));
+        RoutingFilter.init(rh -> showErrorPage().onHandlerNotFound(rh), getString("routing.blocked.paths", null));
         super.onStart(app);
-    }
-
-    @Override
-    public void onStop(Application app) {
-        super.onStop(app);
-        if(graphiteConfig != null) {
-            graphiteConfig.onStop(app);
-        }
-    }
-
-    @Override
-    public F.Promise<Result> onBadRequest(RequestHeader rh, String error) {
-        errorAuditing().onBadRequest(rh, error);
-        return showErrorPage().onBadRequest(rh, error);
-    }
-
-    private ErrorAuditing errorAuditing() {
-        return errorAuditing;
-    }
-
-    @Override
-    public F.Promise<Result> onHandlerNotFound(RequestHeader rh) {
-        errorAuditing().onHandlerNotFound(rh);
-        return showErrorPage().onHandlerNotFound(rh);
-    }
-
-    @Override
-    public F.Promise<Result> onError(RequestHeader rh, Throwable t) {
-        errorAuditing().onError(rh, t);
-        return showErrorPage().onError(rh, t);
     }
 
     @SuppressWarnings("unchecked")
     @Override
     public <T extends EssentialFilter> Class<T>[] filters() {
-        if (enableSecurityHeaderFilter()) {
-            return ArrayUtils.addAll(securityFilters, frontendFilters);
+        if(getBoolean("security.headers.filter.enabled", true)) {
+            return ArrayUtils.addAll(new Class[] {SecurityHeadersFilter.class}, defaultFilters);
         } else {
-            return frontendFilters;
+            return defaultFilters;
         }
     }
 }

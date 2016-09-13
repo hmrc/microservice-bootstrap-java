@@ -54,7 +54,7 @@ public class LoggingFilter implements FrontendLoggingFilter {
 
     @Override
     public boolean controllerNeedsLogging(String controllerName) {
-        return ServicesConfig.getConfBool(String.format("controllers.%s.needsLogging", controllerName), true);
+        return ServicesConfig.getBoolean(String.format("controllers.%s.needsLogging", controllerName), true);
     }
 
     @Override

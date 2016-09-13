@@ -33,7 +33,7 @@ import uk.gov.hmrc.play.audit.model.DataEvent;
 import uk.gov.hmrc.play.http.HeaderCarrier;
 import uk.gov.hmrc.play.java.config.ServicesConfig;
 
-import static uk.gov.hmrc.play.java.config.ServicesConfig.getConfBool;
+import static uk.gov.hmrc.play.java.config.ServicesConfig.getBoolean;
 
 public class MicroserviceAuditFilter implements AuditFilter {
     private int maxBodySize = 32665;
@@ -59,7 +59,7 @@ public class MicroserviceAuditFilter implements AuditFilter {
 
     @Override
     public boolean controllerNeedsAuditing(String controllerName) {
-        return getConfBool(String.format("controllers.%s.needsAuditing", controllerName), true);
+        return getBoolean(String.format("controllers.%s.needsAuditing", controllerName), true);
     }
 
     @Override

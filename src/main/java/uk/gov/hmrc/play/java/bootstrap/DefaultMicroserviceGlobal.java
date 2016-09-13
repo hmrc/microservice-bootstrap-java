@@ -20,19 +20,16 @@ import com.kenshoo.play.metrics.JavaMetricsFilter;
 import play.Application;
 import play.GlobalSettings;
 import play.Logger;
-import play.libs.F;
-import play.mvc.Http;
-import play.mvc.Result;
-import uk.gov.hmrc.play.java.config.GraphiteConfig;
+import play.api.mvc.EssentialFilter;
 import uk.gov.hmrc.play.java.config.ServicesConfig;
 import uk.gov.hmrc.play.java.filters.*;
 
 import java.util.Arrays;
 
-import static uk.gov.hmrc.play.java.config.ServicesConfig.getConfString;
+import static uk.gov.hmrc.play.java.config.ServicesConfig.*;
 
-public abstract class DefaultMicroserviceGlobal extends GlobalSettings {
-    private Class[] defaultMicroserviceFilters = new Class[]{
+public abstract class DefaultMicroserviceGlobal extends BootstrapParent {
+    private Class[] defaultFilters = new Class[]{
             JavaMetricsFilter.class,
             MicroserviceAuthFilter.class,
             MicroserviceAuditFilter.class,
@@ -43,59 +40,26 @@ public abstract class DefaultMicroserviceGlobal extends GlobalSettings {
     };
 
     private JsonErrorHandling jsonErrorHandling = new JsonErrorHandling();
-    private GraphiteConfig graphiteConfig = null;
 
-    private ErrorAuditing errorAuditing = new ErrorAuditing();
-
-    private String appName() {
-        return ServicesConfig.appName();
-    }
-
-    public ErrorAuditing errorAuditing() {
-        return errorAuditing;
+    public GlobalSettings errorHandler() {
+        return jsonErrorHandling;
     }
 
     @Override
     public void onStart(Application app) {
-        Logger.info("Starting microservice : {} : in mode {}", appName(), app.getWrappedApplication().mode());
-        graphiteConfig = new GraphiteConfig("microservice.metrics");
-        graphiteConfig.onStart(app.getWrappedApplication());
-        RoutingFilter.init(rh -> jsonErrorHandling.onHandlerNotFound(rh), getConfString("routing.blocked.paths", null));
+        Logger.info("Starting microservice : {} : in mode {}", ServicesConfig.appName(), app.getWrappedApplication().mode());
+        RoutingFilter.init(rh -> jsonErrorHandling.onHandlerNotFound(rh), getString("routing.blocked.paths", null));
         super.onStart(app);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public void onStop(Application app) {
-        super.onStop(app);
-        if (graphiteConfig != null) {
-            graphiteConfig.onStop(app.getWrappedApplication());
-        }
-    }
-
-    @Override
-    public <T extends play.api.mvc.EssentialFilter> Class<T>[] filters() {
-        if(ServicesConfig.authConnector() == null) {
-            return (Class[]) Arrays.stream(defaultMicroserviceFilters).filter(f -> !f.isAssignableFrom(MicroserviceAuthFilter.class)).toArray(size -> new Class[size]);
+    public <T extends EssentialFilter> Class<T>[] filters() {
+        Logger.info("Authentication enabled? ({})", getBoolean("authentication.enabled", false));
+        if(!getBoolean("authentication.enabled", false) || authConnector() == null) {
+            return (Class[]) Arrays.stream(defaultFilters).filter(f -> !f.equals(MicroserviceAuthFilter.class)).toArray(size -> new Class[size]);
         } else {
-            return defaultMicroserviceFilters;
+            return defaultFilters;
         }
-    }
-
-    @Override
-    public F.Promise<Result> onBadRequest(Http.RequestHeader rh, String error) {
-        errorAuditing().onBadRequest(rh, error);
-        return jsonErrorHandling.onBadRequest(rh, error);
-    }
-
-    @Override
-    public F.Promise<Result> onHandlerNotFound(Http.RequestHeader rh) {
-        errorAuditing().onHandlerNotFound(rh);
-        return jsonErrorHandling.onHandlerNotFound(rh);
-    }
-
-    @Override
-    public F.Promise<Result> onError(Http.RequestHeader rh, Throwable t) {
-        errorAuditing().onError(rh, t);
-        return jsonErrorHandling.onError(rh, t);
     }
 }

@@ -40,10 +40,10 @@ public class WhitelistFilter implements AkamaiWhitelistFilter {
     private static boolean enabled;
 
     public WhitelistFilter() {
-        enabled = getConfBool("filter.whitelist.enabled", false);
-        whitelist = Arrays.asList(getConfString("filter.whitelist.ips", "localhost").split(","));
-        destination = toCall(getConfString("filter.whitelist.destination", null));
-        excludedPaths = getConfStringList("filter.whitelist.exclusions", new ArrayList<>()).stream().map(WhitelistFilter::toCall).collect(Collectors.toList());
+        enabled = getBoolean("filter.whitelist.enabled", false);
+        whitelist = Arrays.asList(getString("filter.whitelist.ips", "localhost").split(","));
+        destination = toCall(getString("filter.whitelist.destination", null));
+        excludedPaths = getStringList("filter.whitelist.exclusions", new ArrayList<>()).stream().map(WhitelistFilter::toCall).collect(Collectors.toList());
     }
 
     private static Call toCall(String methodAndPath) {

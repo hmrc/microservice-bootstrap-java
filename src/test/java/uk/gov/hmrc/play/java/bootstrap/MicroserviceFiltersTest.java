@@ -18,30 +18,52 @@ package uk.gov.hmrc.play.java.bootstrap;
 
 import org.hamcrest.core.Is;
 import org.junit.Test;
+import play.Configuration;
 import uk.gov.hmrc.play.java.ScalaFixtures;
 import uk.gov.hmrc.play.java.config.ServicesConfig;
 import uk.gov.hmrc.play.java.connectors.AuthConnector;
 import uk.gov.hmrc.play.java.connectors.AuditConnector;
 import uk.gov.hmrc.play.java.filters.MicroserviceAuditFilter;
 import uk.gov.hmrc.play.java.filters.MicroserviceAuthFilter;
+import uk.gov.hmrc.play.java.filters.WhitelistFilter;
 
+import java.util.Arrays;
+import java.util.Map;
+
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
+import static play.test.Helpers.running;
 
 public class MicroserviceFiltersTest extends ScalaFixtures {
 
+    private Map<String, Object> additionalWithAuth() {
+        Map<String, Object> props = super.additionalProperties();
+        props.put("authentication.enabled", true);
+        return props;
+    }
+
+    private Map<String, Object> additionalWithoutAuth() {
+        Map<String, Object> props = super.additionalProperties();
+        props.put("authentication.enabled", false);
+        return props;
+    }
+
     @Test
     public void includeAuthFilterIfDefined() {
-        DefaultMicroserviceGlobal testGlobal = new DefaultMicroserviceGlobal() {};
+        DefaultMicroserviceGlobal global = new DefaultMicroserviceGlobal() {};
 
-        assertThat(testGlobal.filters().length, Is.is(7));
+        running(fakeApplication(global, additionalWithAuth()), () -> {
+            assertThat(global.filters().length, is(7));
+        });
     }
 
     @Test
     public void notIncludeAuthFilterIfNotDefined() {
-        ServicesConfig.initConnectors(null, null);
-        DefaultMicroserviceGlobal testGlobal = new DefaultMicroserviceGlobal() {};
+        DefaultMicroserviceGlobal global = new DefaultMicroserviceGlobal() {};
 
-        assertThat(testGlobal.filters().length, Is.is(6));
+        running(fakeApplication(global, additionalWithoutAuth()), () -> {
+            assertThat(global.filters().length, is(6));
+        });
     }
 }
