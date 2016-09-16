@@ -18,14 +18,18 @@ package uk.gov.hmrc.play.java.connectors;
 
 import play.api.libs.ws.WSResponse;
 import play.api.mvc.Result;
+import scala.Option;
 import scala.concurrent.Future;
 import uk.gov.hmrc.play.auth.microservice.connectors.AuthConnector$class;
 import uk.gov.hmrc.play.auth.microservice.connectors.AuthRequestParameters;
 import uk.gov.hmrc.play.auth.microservice.connectors.ResourceToAuthorise;
+import uk.gov.hmrc.play.frontend.auth.connectors.domain.Authority;
 import uk.gov.hmrc.play.http.HeaderCarrier;
+import uk.gov.hmrc.play.http.HttpGet;
+import uk.gov.hmrc.play.java.config.ServicesConfig;
 
 @FunctionalInterface
-public interface AuthConnector extends uk.gov.hmrc.play.auth.microservice.connectors.AuthConnector, Connector {
+public interface AuthConnector extends uk.gov.hmrc.play.auth.microservice.connectors.AuthConnector, Connector, uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector {
     String authBaseUrl();
 
     @Override
@@ -36,5 +40,20 @@ public interface AuthConnector extends uk.gov.hmrc.play.auth.microservice.connec
     @Override
     default Future<WSResponse> callAuth(String url, HeaderCarrier hc) {
         return AuthConnector$class.callAuth(this, url, hc);
+    }
+
+    @Override
+    default String serviceUrl() {
+        return authBaseUrl();
+    }
+
+    @Override
+    default HttpGet http() {
+        return ServicesConfig.wsHttp();
+    }
+
+    @Override
+    default Future<Option<Authority>> currentAuthority(HeaderCarrier hc) {
+        return uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector$class.currentAuthority(this, hc);
     }
 }

@@ -17,14 +17,15 @@
 package uk.gov.hmrc.play.java.controller;
 
 import play.api.mvc.Request;
-import play.mvc.Controller;
+import play.mvc.Result;
+import play.libs.F;
 import uk.gov.hmrc.play.http.HeaderCarrier;
 import uk.gov.hmrc.play.http.logging.LoggingDetails;
 import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext;
 
 import static play.libs.Scala.Option;
 
-public class FrontendController extends Controller {
+public class FrontendController extends DelegationDisabledAuthorisedController {
 
     public HeaderCarrier hc(Request<?> request) {
         return HeaderCarrier.fromHeadersAndSession(request.headers(), Option(request.session()));
@@ -32,5 +33,9 @@ public class FrontendController extends Controller {
 
     public MdcLoggingExecutionContext mdcExecutionContext(LoggingDetails loggingDetails) {
         return (MdcLoggingExecutionContext)MdcLoggingExecutionContext.fromLoggingDetails(loggingDetails);
+    }
+
+    public F.Promise<Result> dos() {
+        return authenticatedBy(null, PageVisibilityPredicate.allowAll()).async((authCtx) -> (request) -> F.Promise.<Result>pure(new play.mvc.Results.Status(Ok())));
     }
 }

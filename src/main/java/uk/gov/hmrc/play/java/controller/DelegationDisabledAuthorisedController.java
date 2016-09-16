@@ -1,5 +1,6 @@
 package uk.gov.hmrc.play.java.controller;
 
+import akka.dispatch.Futures;
 import org.joda.time.DateTime;
 import play.api.libs.iteratee.Enumeratee;
 import play.api.libs.iteratee.Iteratee;
@@ -7,6 +8,7 @@ import play.api.mvc.*;
 import scala.*;
 import scala.collection.Seq;
 import scala.collection.immutable.Map;
+import scala.compat.java8.JFunction2;
 import scala.concurrent.Future;
 import uk.gov.hmrc.play.frontend.auth.*;
 import uk.gov.hmrc.play.frontend.auth.connectors.AuthConnector;
@@ -15,27 +17,32 @@ import uk.gov.hmrc.play.frontend.auth.connectors.domain.Authority;
 import uk.gov.hmrc.play.frontend.auth.connectors.domain.ConfidenceLevel;
 import uk.gov.hmrc.play.http.HeaderCarrier;
 import uk.gov.hmrc.play.http.HttpGet;
+import uk.gov.hmrc.play.java.config.ServicesConfig;
 
-public class DelegationDisabledAuthorisedController implements Actions {
+import java.net.URI;
+
+public class DelegationDisabledAuthorisedController implements UserActions, DelegationDisabled {
+    public AuthenticatedBy authorisedFor(TaxRegime taxRegime, PageVisibilityPredicate pageVisibility) {
+        return UserActions$class.AuthorisedFor(this, taxRegime, pageVisibility);
+    }
+
+    public AuthenticatedBy authenticatedBy(AuthenticationProvider authenticationProvider, PageVisibilityPredicate pageVisibility) {
+        return UserActions$class.AuthenticatedBy(this, authenticationProvider, pageVisibility);
+    }
+
+    @Override
+    public AuthenticatedBy AuthorisedFor(TaxRegime taxRegime, Function2<AuthContext, Request<AnyContent>, Future<PageVisibilityResult>> pageVisibility) {
+        return UserActions$class.AuthorisedFor(this, taxRegime, pageVisibility);
+    }
+
+    @Override
+    public AuthenticatedBy AuthenticatedBy(AuthenticationProvider authenticationProvider, Function2<AuthContext, Request<AnyContent>, Future<PageVisibilityResult>> pageVisibility) {
+        return UserActions$class.AuthenticatedBy(this, authenticationProvider, pageVisibility);
+    }
 
     @Override
     public AuthConnector authConnector() {
-        return new AuthConnector() {
-            @Override
-            public Future<Option<Authority>> currentAuthority(HeaderCarrier hc) {
-                return AuthConnector$class.currentAuthority(this, hc);
-            }
-
-            @Override
-            public String serviceUrl() {
-                return null;
-            }
-
-            @Override
-            public HttpGet http() {
-                return null;
-            }
-        };
+        return ServicesConfig.authConnector();
     }
 
     @Override
@@ -49,13 +56,13 @@ public class DelegationDisabledAuthorisedController implements Actions {
     }
 
     @Override
-    public Function0<DateTime> now() {
-        return SessionTimeoutWrapper$class.now(this);
+    public Future<Option<DelegationData>> loadDelegationData(String userId, HeaderCarrier hc) {
+        return DelegationDisabled$class.loadDelegationData(this, userId, hc);
     }
 
     @Override
-    public Future<Option<DelegationData>> loadDelegationData(String userId, HeaderCarrier hc) {
-        return DelegationDisabled$class.loadDelegationData(this, userId, hc);
+    public Function0<DateTime> now() {
+        return SessionTimeoutWrapper$class.now(this);
     }
 
     @Override
@@ -118,6 +125,10 @@ public class DelegationDisabledAuthorisedController implements Actions {
         return Results$class.Redirect(this, url, status);
     }
 
+    public Result Redirect(String url) {
+        return Results$class.Redirect(this, url, Results$class.Redirect$default$2(this));
+    }
+
     @Override
     public int Redirect$default$3() {
         return Results$class.Redirect$default$3(this);
@@ -146,16 +157,6 @@ public class DelegationDisabledAuthorisedController implements Actions {
     @Override
     public Function1<AuthContext, Action<AnyContent>> makeFutureAction(Function1<AuthContext, Function1<Request<AnyContent>, Future<Result>>> body) {
         return UserActions$class.makeFutureAction(this, body);
-    }
-
-    @Override
-    public AuthenticatedBy AuthorisedFor(TaxRegime taxRegime, Function2<AuthContext, Request<AnyContent>, Future<PageVisibilityResult>> pageVisibility) {
-        return UserActions$class.AuthorisedFor(this, taxRegime, pageVisibility);
-    }
-
-    @Override
-    public AuthenticatedBy AuthenticatedBy(AuthenticationProvider authenticationProvider, Function2<AuthContext, Request<AnyContent>, Future<PageVisibilityResult>> pageVisibility) {
-        return UserActions$class.AuthenticatedBy(this, authenticationProvider, pageVisibility);
     }
 
     @Override

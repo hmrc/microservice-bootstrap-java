@@ -19,6 +19,8 @@ package uk.gov.hmrc.play.java.config;
 import play.Configuration;
 import uk.gov.hmrc.play.audit.http.config.LoadAuditingConfig;
 import uk.gov.hmrc.play.config.RunMode$;
+import uk.gov.hmrc.play.http.HttpGet;
+import uk.gov.hmrc.play.http.ws.WSHttp;
 import uk.gov.hmrc.play.java.connectors.AuthConnector;
 import uk.gov.hmrc.play.java.connectors.AuditConnector;
 
@@ -73,6 +75,10 @@ public class ServicesConfig {
 
     public static AuthConnector authConnector() {
         return authConnector;
+    }
+
+    public static WSHttp wsHttp() {
+        return null;
     }
 
     public static Configuration getConfiguration(String name, Configuration defaultVal) {
