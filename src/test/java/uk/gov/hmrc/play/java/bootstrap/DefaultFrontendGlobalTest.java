@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,7 +29,6 @@ import uk.gov.hmrc.play.java.ScalaFixtures;
 import uk.gov.hmrc.play.java.config.ServicesConfig;
 import uk.gov.hmrc.play.java.connectors.AuditConnector;
 import uk.gov.hmrc.play.java.connectors.AuthConnector;
-import uk.gov.hmrc.play.java.filters.WhitelistFilter;
 
 import java.io.File;
 import java.util.Arrays;
@@ -118,7 +117,7 @@ public class DefaultFrontendGlobalTest extends ScalaFixtures {
         DefaultFrontendGlobal minusWhitelist = new DefaultFrontendGlobalWithShowError() {
             @Override
             public <T extends EssentialFilter> Class<T>[] filters() {
-                return (Class[]) Arrays.stream(super.filters()).filter(f -> !f.isAssignableFrom(WhitelistFilter.class)).toArray(size -> new Class[size]);
+                return (Class[]) Arrays.stream(super.filters()).toArray(size -> new Class[size]);
             }
         };
 
