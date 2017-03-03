@@ -24,20 +24,20 @@ val compileDependencies = Seq(
   filters,
   javaCore,
   "com.typesafe.play" %% "play" % PlayVersion.current,
-  "uk.gov.hmrc" %% "crypto" % "3.1.0",
+  "uk.gov.hmrc" %% "crypto" %  "3.1.0",
   "uk.gov.hmrc" %% "play-filters-java" % "0.5.0",
   "uk.gov.hmrc" %% "play-whitelist-filter" % "1.1.0",
-  "uk.gov.hmrc" %% "frontend-bootstrap" % "6.5.0",
-  "uk.gov.hmrc" %% "play-authorisation" % "3.3.0",
-  "uk.gov.hmrc" %% "microservice-bootstrap" % "4.4.0",
-  "uk.gov.hmrc" %% "play-graphite" % "2.0.0",
-  "uk.gov.hmrc" %% "play-config" % "2.0.1",
+  "uk.gov.hmrc" %% "frontend-bootstrap" %  "6.7.0",
+  "uk.gov.hmrc" %% "play-authorisation" %  "3.4.0",
+  "uk.gov.hmrc" %% "microservice-bootstrap" %  "4.4.0",
+  "uk.gov.hmrc" %% "play-graphite" %  "2.0.0",
+  "uk.gov.hmrc" %% "play-config" %  "2.1.0",
   "com.kenshoo" %% "metrics-play" % "2.3.0_0.1.8"
 )
 
 val testDependencies = Seq(
   javaWs,
-  "uk.gov.hmrc" %% "hmrctest" % "1.7.0",
+  "uk.gov.hmrc" %% "hmrctest" %  "1.9.0",
   "org.pegdown" % "pegdown" % "1.6.0",
   "com.novocode" % "junit-interface" % "0.10",
   "com.typesafe.play" %% "play-test" % PlayVersion.current
